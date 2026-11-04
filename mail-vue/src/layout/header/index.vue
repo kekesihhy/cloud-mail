@@ -16,6 +16,18 @@
       <div v-else class="dark-icon icon-item" @click="openDark($event)">
         <Icon icon="solar:moon-linear"/>
       </div>
+      <el-dropdown class="palette-picker" trigger="click">
+        <div class="palette-icon icon-item" title="主题配色">
+          <Icon icon="solar:palette-round-linear" />
+        </div>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item @click="setPalette('ocean')">海洋蓝</el-dropdown-item>
+            <el-dropdown-item @click="setPalette('violet')">星云紫</el-dropdown-item>
+            <el-dropdown-item @click="setPalette('emerald')">极光绿</el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
       <div class="notice icon-item" @click="openNotice">
         <Icon icon="streamline-plump:announcement-megaphone"/>
       </div>
@@ -91,6 +103,7 @@ const route = useRoute();
 const settingStore = useSettingStore();
 const userStore = useUserStore();
 const uiStore = useUiStore();
+document.documentElement.dataset.palette = uiStore.palette || 'ocean';
 const logoutLoading = ref(false)
 const userInfoShow = ref(false)
 const userinfoRef = ref({})
@@ -185,6 +198,11 @@ async function copyEmail(email) {
 function changeLang(lang) {
   setExtend(lang === 'en' ? 'en' : 'zh-cn')
   settingStore.lang = lang
+}
+
+function setPalette(palette) {
+  uiStore.palette = palette
+  document.documentElement.dataset.palette = palette
 }
 
 function openNotice() {
