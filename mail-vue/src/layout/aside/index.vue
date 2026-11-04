@@ -65,8 +65,10 @@
           <span class="menu-name" style="margin-left: 22px">{{$t('SystemSettings')}}</span>
         </el-menu-item>
       </el-menu>
-      <div class="account-section-title">{{$t('emailAccount')}}</div>
-      <account class="integrated-account-list" />
+      <div v-if="settingStore.settings.manyEmail === 0" v-perm="'account:query'">
+        <div class="account-section-title">{{$t('emailAccount')}}</div>
+        <account class="integrated-account-list" />
+      </div>
     </div>
   </el-scrollbar>
 </template>
