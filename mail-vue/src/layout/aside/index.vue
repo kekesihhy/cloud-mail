@@ -149,16 +149,28 @@ const route = useRoute();
   max-height: 34vh;
 }
 :deep(.integrated-account-list .item) {
+  --el-card-bg-color: rgba(255, 255, 255, .055);
   margin: 4px 10px;
-  padding: 9px 8px;
-  border-color: rgba(255,255,255,.12);
+  padding: 8px;
+  border: 1px solid rgba(255, 255, 255, .09);
+  border-radius: 10px;
+  box-shadow: none;
 }
 :deep(.integrated-account-list .item-choose) {
-  background: rgba(255,255,255,.12) !important;
+  --el-card-bg-color: rgba(45, 139, 255, .22);
+  border-color: rgba(91, 171, 255, .32);
 }
 :deep(.integrated-account-list .account) {
-  color: #fff;
-  margin-bottom: 10px;
+  color: rgba(255, 255, 255, .92);
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+:deep(.integrated-account-list .head-opt) {
+  height: 32px;
+}
+:deep(.integrated-account-list .settings),
+:deep(.integrated-account-list .send-email) {
+  opacity: .88;
 }
 
 .manage-title {
