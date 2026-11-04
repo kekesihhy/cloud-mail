@@ -237,7 +237,10 @@ function openSend() {
 }
 
 function changeAside() {
-  uiStore.asideShow = !uiStore.asideShow
+  const nextOpen = !uiStore.asideShow
+  // Keep the navigation and mailbox selector from appearing as two adjacent sidebars.
+  if (nextOpen) uiStore.accountShow = false
+  uiStore.asideShow = nextOpen
 }
 
 function clickLogout() {
