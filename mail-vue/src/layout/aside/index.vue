@@ -65,6 +65,8 @@
           <span class="menu-name" style="margin-left: 22px">{{$t('SystemSettings')}}</span>
         </el-menu-item>
       </el-menu>
+      <div class="account-section-title">{{$t('emailAccount')}}</div>
+      <account class="integrated-account-list" />
     </div>
   </el-scrollbar>
 </template>
@@ -74,6 +76,7 @@ import router from "@/router/index.js";
 import { useRoute } from "vue-router";
 import {Icon} from "@iconify/vue";
 import {useSettingStore} from "@/store/setting.js";
+import account from "@/layout/account/index.vue";
 
 const settingStore = useSettingStore();
 const route = useRoute();
@@ -120,6 +123,41 @@ const route = useRoute();
 
 }
 
+
+.account-section-title {
+  margin: 16px 20px 6px;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+:deep(.integrated-account-list.account-box) {
+  height: auto;
+  overflow: visible;
+  border: 0 !important;
+  background: transparent;
+}
+:deep(.integrated-account-list .head-opt) {
+  box-shadow: none;
+  color: #fff;
+}
+:deep(.integrated-account-list .scrollbar) {
+  height: auto;
+  max-height: 34vh;
+}
+:deep(.integrated-account-list .item) {
+  margin: 4px 10px;
+  padding: 9px 8px;
+  border-color: rgba(255,255,255,.12);
+}
+:deep(.integrated-account-list .item-choose) {
+  background: rgba(255,255,255,.12) !important;
+}
+:deep(.integrated-account-list .account) {
+  color: #fff;
+  margin-bottom: 10px;
+}
 
 .manage-title {
   margin-top: 10px;
