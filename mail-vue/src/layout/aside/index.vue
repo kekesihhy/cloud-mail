@@ -5,6 +5,10 @@
         <Icon icon="mdi:email-outline" width="24" height="24" />
         <div>{{settingStore.settings.title}}</div>
       </div>
+      <div v-if="settingStore.settings.manyEmail === 0" v-perm="'account:query'">
+        <div class="account-section-title">{{$t('emailAccount')}}</div>
+        <account class="integrated-account-list" />
+      </div>
       <el-menu :collapse="false" text-color="#fff" active-text-color="#fff" style="margin-top: 10px">
         <el-menu-item @click="router.push({name: 'email'})" index="email"
                       :class="route.meta.name === 'email' ? 'choose-item' : ''">
@@ -65,10 +69,6 @@
           <span class="menu-name" style="margin-left: 22px">{{$t('SystemSettings')}}</span>
         </el-menu-item>
       </el-menu>
-      <div v-if="settingStore.settings.manyEmail === 0" v-perm="'account:query'">
-        <div class="account-section-title">{{$t('emailAccount')}}</div>
-        <account class="integrated-account-list" />
-      </div>
     </div>
   </el-scrollbar>
 </template>
