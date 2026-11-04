@@ -142,19 +142,11 @@ const handleResize = () => {
 }
 
 
-.main-box-show {
-  display: grid;
-  grid-template-columns: 260px  1fr;
+.main-box {
+  display: flex;
+  width: 100%;
   height: calc(100% - 60px);
-  @media (max-width: 767px) {
-    grid-template-columns: 1fr;
-  }
-}
-
-.main-box-hide {
-  display: grid;
-  grid-template-columns: 1fr;
-  height: calc(100% - 60px);
+  min-width: 0;
 }
 
 
