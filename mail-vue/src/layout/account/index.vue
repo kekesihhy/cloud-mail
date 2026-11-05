@@ -673,11 +673,14 @@ path[fill="#ffdda1"] {
 }
 .account-selector-icon, .account-selector-caret { flex: 0 0 auto; }
 .selected-account-email { flex: 1 1 auto; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-align: left; }
-.account-picker-popper { width: min(380px, calc(100vw - 24px)); }
-.account-picker-popper .el-dropdown-menu { width: 100%; max-height: min(65vh, 480px); overflow: hidden; padding: 6px; }
+.account-picker-popper { z-index: 3000 !important; width: min(380px, calc(100vw - 24px)); }
+.account-picker-popper .el-dropdown-menu {
+  display: flex; flex-direction: column; width: 100%; max-height: min(72vh, 560px); overflow: hidden; padding: 6px;
+}
 .account-picker-popper .el-dropdown-menu__item { min-height: 42px; line-height: 1.25; white-space: normal; }
 .account-picker-popper .account-picker-heading { min-height: 34px; color: var(--el-text-color-secondary); font-size: 12px; cursor: default; }
-.account-picker-options { max-height: min(50vh, 360px); overflow-y: auto; overscroll-behavior: contain; }
+.account-picker-options { flex: 0 1 auto; min-height: 0; max-height: min(52vh, 400px); overflow-y: auto; overscroll-behavior: contain; }
+.account-picker-popper .account-picker-action { flex: 0 0 auto; }
 .account-picker-popper .account-option-current { color: var(--el-color-primary); background: var(--el-color-primary-light-9); font-weight: 600; }
 .account-option { display: flex; align-items: center; gap: 8px; width: 100%; min-width: 0; }
 .account-option-email { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
@@ -690,6 +693,8 @@ path[fill="#ffdda1"] {
 @media (max-width: 600px) {
   .account-selector-button { height: 32px; gap: 6px; padding: 0 8px; border-radius: 8px; font-size: 12px; }
   .account-picker-popper { width: min(380px, calc(100vw - 16px)); }
+  .account-picker-popper .el-dropdown-menu { max-height: calc(100dvh - 24px); }
+  .account-picker-options { max-height: min(52vh, calc(100dvh - 180px)); }
   .account-option-actions { gap: 6px; }
 }
 </style>
