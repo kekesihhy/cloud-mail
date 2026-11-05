@@ -16,15 +16,23 @@
       <div v-else class="dark-icon icon-item" @click="openDark($event)">
         <Icon icon="solar:moon-linear"/>
       </div>
-      <el-dropdown class="palette-picker" trigger="click">
-        <div class="palette-icon icon-item" title="主题配色">
+      <el-dropdown class="palette-picker" trigger="click" popper-class="appearance-popper">
+        <div class="palette-icon icon-item" :title="$t('appearanceAndThemes')">
           <Icon icon="solar:palette-round-linear" />
         </div>
         <template #dropdown>
-          <el-dropdown-menu>
-            <el-dropdown-item @click="setPalette('ocean')">海洋蓝</el-dropdown-item>
-            <el-dropdown-item @click="setPalette('violet')">星云紫</el-dropdown-item>
-            <el-dropdown-item @click="setPalette('emerald')">极光绿</el-dropdown-item>
+          <el-dropdown-menu class="appearance-menu">
+            <el-dropdown-item disabled class="appearance-heading">{{ $t('visualTheme') }}</el-dropdown-item>
+            <el-dropdown-item :class="{'appearance-current': uiStore.theme === 'classic'}" @click="setTheme('classic')">
+              <span class="appearance-choice"><span class="theme-swatch theme-swatch-classic"></span>{{ $t('classicTheme') }}</span>
+            </el-dropdown-item>
+            <el-dropdown-item :class="{'appearance-current': uiStore.theme === 'glass'}" @click="setTheme('glass')">
+              <span class="appearance-choice"><span class="theme-swatch theme-swatch-glass"></span>{{ $t('glassTheme') }}<span class="theme-new">AURORA</span></span>
+            </el-dropdown-item>
+            <el-dropdown-item disabled class="appearance-heading appearance-color-heading">{{ $t('accentColor') }}</el-dropdown-item>
+            <el-dropdown-item :class="{'appearance-current': uiStore.palette === 'ocean'}" @click="setPalette('ocean')">{{ $t('oceanPalette') }}</el-dropdown-item>
+            <el-dropdown-item :class="{'appearance-current': uiStore.palette === 'violet'}" @click="setPalette('violet')">{{ $t('violetPalette') }}</el-dropdown-item>
+            <el-dropdown-item :class="{'appearance-current': uiStore.palette === 'emerald'}" @click="setPalette('emerald')">{{ $t('emeraldPalette') }}</el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>
@@ -104,6 +112,7 @@ const settingStore = useSettingStore();
 const userStore = useUserStore();
 const uiStore = useUiStore();
 document.documentElement.dataset.palette = uiStore.palette || 'ocean';
+document.documentElement.dataset.theme = uiStore.theme || 'classic';
 const logoutLoading = ref(false)
 const userInfoShow = ref(false)
 const userinfoRef = ref({})
@@ -205,6 +214,15 @@ function setPalette(palette) {
   document.documentElement.dataset.palette = palette
 }
 
+function setTheme(theme) {
+  uiStore.theme = theme
+  document.documentElement.dataset.theme = theme
+  const metaTag = document.getElementById('theme-color-meta')
+  if (metaTag) {
+    metaTag.setAttribute('content', theme === 'glass' ? (uiStore.dark ? '#11162b' : '#dbe5ff') : (uiStore.dark ? '#141414' : '#F1F1F1'))
+  }
+}
+
 function openNotice() {
   uiStore.showNotice()
 }
@@ -245,8 +263,11 @@ function openDark(e) {
 function switchDark(nextIsDark, root) {
   root.setAttribute('class', nextIsDark ? 'dark' : '')
   const metaTag = document.getElementById('theme-color-meta');
-  const isMobile =  !window.matchMedia("(pointer: fine) and (hover: hover)").matches;
-  metaTag.setAttribute('content', nextIsDark ? (isMobile ? '#141414' : '#000000') : (isMobile ? '#FFFFFF' : '#F1F1F1'));
+  const isMobile = !window.matchMedia("(pointer: fine) and (hover: hover)").matches;
+  const themeColor = uiStore.theme === 'glass'
+    ? (nextIsDark ? '#11162b' : '#dbe5ff')
+    : (nextIsDark ? (isMobile ? '#141414' : '#000000') : (isMobile ? '#FFFFFF' : '#F1F1F1'));
+  metaTag.setAttribute('content', themeColor);
   uiStore.dark = nextIsDark
 }
 
@@ -276,6 +297,60 @@ function formatName(email) {
 <style>
 .detail-dropdown {
   color: var(--el-text-color-primary) !important;
+}
+
+.appearance-popper {
+  min-width: 190px;
+}
+
+.appearance-menu .appearance-heading {
+  min-height: 30px;
+  color: var(--el-text-color-secondary);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  cursor: default;
+}
+
+.appearance-menu .appearance-color-heading {
+  margin-top: 5px;
+  border-top: 1px solid var(--el-border-color-lighter);
+  padding-top: 8px;
+}
+
+.appearance-choice {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+}
+
+.appearance-current {
+  color: var(--el-color-primary) !important;
+  font-weight: 600;
+}
+
+.theme-swatch {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  border: 1px solid rgba(100, 116, 160, 0.24);
+  border-radius: 6px;
+}
+
+.theme-swatch-classic {
+  background: linear-gradient(135deg, #ffffff 48%, #dcecff 49%);
+}
+
+.theme-swatch-glass {
+  background: radial-gradient(circle at 70% 25%, #d8fff5 0 18%, transparent 22%), linear-gradient(135deg, #788cf7, #d8c8ff 55%, #9ce9dc);
+}
+
+.theme-new {
+  margin-left: auto;
+  color: var(--el-color-primary);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
 }
 </style>
 <style lang="scss" scoped>

@@ -17,9 +17,14 @@
       const uiStore =  JSON.parse(uiStoreStr)
       const root = document.documentElement
       root.setAttribute('class', uiStore.dark ? 'dark' : '');
+      root.dataset.palette = uiStore.palette || 'ocean';
+      root.dataset.theme = uiStore.theme || 'classic';
       const metaTag = document.getElementById('theme-color-meta');
       const isMobile =  !window.matchMedia("(pointer: fine) and (hover: hover)").matches;
-      metaTag.setAttribute('content', uiStore.dark ? (isMobile ? '#141414' : '#000000') : (isMobile ? '#FFFFFF' : '#F1F1F1'));
+      const themeColor = uiStore.theme === 'glass'
+        ? (uiStore.dark ? '#11162b' : '#dbe5ff')
+        : (uiStore.dark ? (isMobile ? '#141414' : '#000000') : (isMobile ? '#FFFFFF' : '#F1F1F1'));
+      metaTag.setAttribute('content', themeColor);
     }
   </script>
 </head>

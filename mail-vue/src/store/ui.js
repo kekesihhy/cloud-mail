@@ -11,6 +11,7 @@ export const useUiStore = defineStore('ui', {
         key: 0,
         dark: false,
         palette: 'ocean',
+        theme: 'classic',
         asideCount: {
             email: 0,
             send: 0,
@@ -27,6 +28,6 @@ export const useUiStore = defineStore('ui', {
         }
     },
     persist: {
-        pick: ['dark','palette'],
+        pick: ['dark','palette','theme'],
     },
 })
