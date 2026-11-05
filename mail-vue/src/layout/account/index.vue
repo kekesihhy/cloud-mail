@@ -53,7 +53,7 @@
         </el-dropdown-menu>
       </template>
     </el-dropdown>
-    <el-dialog v-model="showAdd" :title="$t('addAccount')">
+    <el-dialog v-model="showAdd" :title="$t('addAccount')" append-to-body>
       <div class="container">
         <el-input v-model="addForm.email" ref="addRef" type="text" :placeholder="$t('emailAccount')" autocomplete="off">
           <template #append>
