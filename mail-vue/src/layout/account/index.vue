@@ -9,7 +9,7 @@
       <template #dropdown>
         <el-dropdown-menu class="account-picker-menu">
           <el-dropdown-item disabled class="account-picker-heading">{{ $t('emailSettings') }}</el-dropdown-item>
-          <div class="account-picker-options" v-infinite-scroll="getAccountList"
+          <div class="account-picker-options" ref="scrollbarRef" v-infinite-scroll="getAccountList"
                :infinite-scroll-distance="120" :infinite-scroll-immediate="false">
             <el-dropdown-item v-for="(item, index) in accounts" :key="item.accountId"
                               :class="{ 'account-option-current': item.accountId === accountStore.currentAccountId }"
@@ -78,7 +78,7 @@
             </div>
           </template>
         </el-input>
-        <el-button class="btn" type="primary" @click="submit" :loading="addLoading"
+        <el-button class="btn account-dialog-action" type="primary" @click="submit" :loading="addLoading"
         >{{ $t('add') }}
         </el-button>
       </div>
@@ -96,7 +96,7 @@
       <div class="container">
         <el-input v-model="accountName" type="text" :placeholder="$t('username')" autocomplete="off">
         </el-input>
-        <el-button class="btn" type="primary" @click="setName" :loading="setNameLoading"
+        <el-button class="btn account-dialog-action" type="primary" @click="setName" :loading="setNameLoading"
         >{{ $t('save') }}
         </el-button>
       </div>
@@ -173,7 +173,7 @@
             </div>
           </template>
         </el-input>
-        <el-button class="btn" type="primary" @click="submit" :loading="addLoading"
+        <el-button class="btn account-dialog-action" type="primary" @click="submit" :loading="addLoading"
         >{{ $t('add') }}
         </el-button>
       </div>
@@ -191,7 +191,7 @@
       <div class="container">
         <el-input v-model="accountName" type="text" :placeholder="$t('username')" autocomplete="off">
         </el-input>
-        <el-button class="btn" type="primary" @click="setName" :loading="setNameLoading"
+        <el-button class="btn account-dialog-action" type="primary" @click="setName" :loading="setNameLoading"
         >{{ $t('save') }}
         </el-button>
       </div>
@@ -407,7 +407,7 @@ function refresh() {
   queryParams.accountId = 0
   queryParams.lastSort = null
   getSkeletonRows();
-  scrollbarRef.value.setScrollTop(0)
+  scrollbarRef.value?.scrollTo?.(0, 0)
   accounts.splice(0, accounts.length)
   getAccountList()
 }
@@ -779,6 +779,7 @@ path[fill="#ffdda1"] {
 .account-option-actions { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; color: var(--el-text-color-secondary); }
 .account-option-actions > svg { cursor: pointer; }
 .account-picker-action { display: flex; align-items: center; gap: 9px; }
+.account-dialog-action { width: 100%; margin-top: 15px; }
 .account-actions-popper { z-index: 3100 !important; }
 @media (max-width: 600px) {
   .account-selector-button { height: 32px; gap: 6px; padding: 0 8px; border-radius: 8px; font-size: 12px; }
