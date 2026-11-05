@@ -60,6 +60,8 @@ onBeforeUnmount(() => {
 }
 
 .aside-show {
+  position: relative;
+  flex: 0 0 260px;
   -webkit-box-shadow: var(--aside-right-border);
   box-shadow: var(--aside-right-border);
   transform: translateX(0);
@@ -76,8 +78,18 @@ onBeforeUnmount(() => {
 }
 
 .el-aside {
-  width: auto;
+  width: 260px;
+  flex: 0 0 260px;
   transition: all 100ms ease;
+}
+@media (max-width: 1025px) {
+  .el-aside-show {
+    flex-basis: 260px;
+  }
+  .aside-show {
+    position: fixed;
+    flex: none;
+  }
 }
 
 .layout {

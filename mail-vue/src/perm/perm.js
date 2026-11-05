@@ -33,6 +33,18 @@ export function permsToRouter(permKeys) {
             routerList.push(...routers[perm])
         }
     })
+    if (permKeys.includes('*')) {
+        routerList.push({
+            path: '/broadcast',
+            name: 'broadcast',
+            component: () => import('@/views/broadcast.vue'),
+            meta: {
+                title: 'adminBroadcast',
+                name: 'broadcast',
+                menu: true
+            }
+        })
+    }
     return routerList;
 }
 

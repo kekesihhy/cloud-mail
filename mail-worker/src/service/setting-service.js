@@ -9,6 +9,7 @@ import BizError from '../error/biz-error';
 import {t} from '../i18n/i18n'
 import verifyRecordService from './verify-record-service';
 import userContext from '../security/user-context';
+import verifyUtils from '../utils/verify-utils';
 
 const settingService = {
 
@@ -144,6 +145,16 @@ const settingService = {
 			params.loginDarkenFactor = Number.isNaN(factor) ? 0 : Math.min(1, Math.max(0, factor));
 		}
 
+		if (params.adminContactEmail !== undefined) {
+			params.adminContactEmail = String(params.adminContactEmail || '').trim().toLowerCase();
+			if (params.adminContactEmail && !verifyUtils.isEmail(params.adminContactEmail)) {
+				throw new BizError(t('notEmail'));
+			}
+		}
+		if (params.showAdminContactEmail !== undefined) {
+			params.showAdminContactEmail = Number(params.showAdminContactEmail) === 1 ? 1 : 0;
+		}
+
 		params.resendTokens = JSON.stringify(resendTokens);
 		await orm(c).update(setting).set({ ...params }).returning().get();
 		await this.refresh(c);
@@ -221,6 +232,8 @@ const settingService = {
 			background: settingRow.background,
 			loginOpacity: settingRow.loginOpacity,
 			loginDarkenFactor: settingRow.loginDarkenFactor,
+			showAdminContactEmail: settingRow.showAdminContactEmail,
+			adminContactEmail: settingRow.showAdminContactEmail ? settingRow.adminContactEmail : '',
 			domainList: settingRow.loginDomain === 1 && !token ? [] : settingRow.domainList,
 			regKey: settingRow.regKey,
 			regVerifyOpen: settingRow.regVerifyOpen,

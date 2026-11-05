@@ -1,80 +1,58 @@
 <template>
-  <div class="account-box">
-    <div class="head-opt">
-      <Icon v-perm="'account:add'" class="icon add" icon="ion:add-outline" width="23" height="23" @click="add"/>
-      <Icon class="icon refresh" icon="ion:reload" width="18" height="18" @click="refresh"/>
-    </div>
-    <el-scrollbar class="scrollbar" ref="scrollbarRef">
-      <div v-infinite-scroll="getAccountList" :infinite-scroll-distance="600" :infinite-scroll-immediate="false">
-        <el-card class="item" :class="itemBg(item.accountId)" v-for="(item, index) in accounts" :key="item.accountId"
-                 @click="changeAccount(item)">
-          <div class="account">
-            {{ item.email }}
+  <div v-if="settingStore.settings.manyEmail === 0 && hasPerm('account:query')" class="account-picker">
+    <el-dropdown class="account-selector" trigger="click" popper-class="account-picker-popper">
+      <button class="account-selector-button" type="button" :title="selectedAccount.email || $t('emailSettings')">
+        <Icon class="account-selector-icon" icon="mdi:email-outline" width="18" height="18" />
+        <span class="selected-account-email">{{ selectedAccount.email || $t('emailAccount') }}</span>
+        <Icon class="account-selector-caret" icon="mingcute:down-small-fill" width="18" height="18" />
+      </button>
+      <template #dropdown>
+        <el-dropdown-menu class="account-picker-menu">
+          <el-dropdown-item disabled class="account-picker-heading">{{ $t('emailSettings') }}</el-dropdown-item>
+          <div class="account-picker-options" ref="scrollbarRef" v-infinite-scroll="getAccountList"
+               :infinite-scroll-distance="120" :infinite-scroll-immediate="false">
+            <el-dropdown-item v-for="(item, index) in accounts" :key="item.accountId"
+                              :class="{ 'account-option-current': item.accountId === accountStore.currentAccountId }"
+                              @click="changeAccount(item)">
+              <div class="account-option">
+                <span class="account-option-email">{{ item.email }}</span>
+                <Icon v-if="item.accountId === accountStore.currentAccountId" class="account-option-check"
+                      icon="material-symbols:check-rounded" width="18" height="18" />
+                <span class="account-option-actions" @click.stop>
+                  <Icon v-if="!item.allReceive" icon="eva:email-fill" width="20" height="20" color="#e8b500"
+                        @click.stop="setAllReceive(item)" />
+                  <Icon v-else icon="flat-color-icons:folder" width="20" height="20"
+                        @click.stop="setAllReceive(item)" />
+                  <Icon icon="fluent-color:clipboard-24" width="20" height="20"
+                        @click.stop="copyAccount(item.email)" />
+                  <el-dropdown v-if="!showNullSetting(item)" trigger="click" popper-class="account-actions-popper">
+                    <Icon icon="fluent:settings-24-filled" width="19" height="19" color="#909399"
+                          @click.stop />
+                    <template #dropdown>
+                      <el-dropdown-menu>
+                        <el-dropdown-item v-if="hasPerm('email:send')" @click="openSetName(item)">{{ $t('rename') }}</el-dropdown-item>
+                        <el-dropdown-item v-if="item.accountId !== userStore.user.account.accountId"
+                                          @click="setAsTop(item, index)">{{ $t('pin') }}</el-dropdown-item>
+                        <el-dropdown-item v-if="item.accountId !== userStore.user.account.accountId && hasPerm('account:delete')"
+                                          @click="remove(item)">{{ $t('delete') }}</el-dropdown-item>
+                      </el-dropdown-menu>
+                    </template>
+                  </el-dropdown>
+                </span>
+              </div>
+            </el-dropdown-item>
           </div>
-          <div class="opt">
-            <div class="send-email" @click.stop>
-              <Icon @click="setAllReceive(item)" v-if="!item.allReceive" icon="eva:email-fill" width="22" height="22" color="#fccb1a"/>
-              <Icon @click="setAllReceive(item)" v-else icon="flat-color-icons:folder" width="22" height="22" color="#23c4f1" />
-            </div>
-            <div class="settings" @click.stop>
-              <Icon icon="fluent-color:clipboard-24" width="22" height="22" @click.stop="copyAccount(item.email)"/>
-              <Icon icon="fluent:settings-24-filled" width="21" height="21" color="#909399"
-                    v-if="showNullSetting(item)"/>
-              <el-dropdown v-else>
-                <Icon icon="fluent:settings-24-filled" width="21" height="21" color="#909399"/>
-                <template #dropdown>
-                  <el-dropdown-menu>
-                    <el-dropdown-item v-if="hasPerm('email:send')" @click="openSetName(item)">{{ $t('rename') }}</el-dropdown-item>
-                    <el-dropdown-item v-if="item.accountId !== userStore.user.account.accountId" @click="setAsTop(item, index)">{{ $t('pin') }}</el-dropdown-item>
-                    <el-dropdown-item v-if="item.accountId !== userStore.user.account.accountId && hasPerm('account:delete')"
-                                      @click="remove(item)">{{ $t('delete') }}
-                    </el-dropdown-item>
-                  </el-dropdown-menu>
-                </template>
-              </el-dropdown>
-            </div>
-          </div>
-        </el-card>
-
-        <!-- Initial Loading Skeleton -->
-        <template v-if="loading">
-          <el-skeleton v-for="i in skeletonRows" :key="i" animated>
-            <template #template>
-              <el-card class="item">
-                <el-skeleton-item variant="p" style="width: 70%; height: 20px; margin-bottom: 25px"/>
-                <div style="display: flex; justify-content: space-between">
-                  <el-skeleton-item variant="text" style="width: 20px"/>
-                  <el-skeleton-item variant="text" style="width: 20px"/>
-                </div>
-              </el-card>
-            </template>
-          </el-skeleton>
-        </template>
-
-        <!-- Follow Loading Skeleton -->
-        <template v-if="accounts.length > 0 && !noLoading">
-          <el-skeleton animated>
-            <template #template>
-              <el-card class="item">
-                <el-skeleton-item variant="p" style="width: 70%; height: 20px; margin-bottom: 20px"/>
-                <div style="display: flex; justify-content: space-between">
-                  <el-skeleton-item variant="text" style="width: 20px"/>
-                  <el-skeleton-item variant="text" style="width: 20px"/>
-                </div>
-              </el-card>
-            </template>
-          </el-skeleton>
-        </template>
-
-        <div class="noLoading" v-if="noLoading && accounts.length > 0">
-          <div>{{ $t('noMoreData') }}</div>
-        </div>
-        <div class="empty" v-if="noLoading && accounts.length === 0">
-          <el-empty :description="$t('noMessagesFound')"/>
-        </div>
-      </div>
-
-    </el-scrollbar>
+          <el-dropdown-item v-if="hasPerm('account:add')" divided class="account-picker-action" @click="add">
+            <Icon icon="ion:add-outline" width="20" height="20" />
+            <span>{{ $t('addAccount') }}</span>
+          </el-dropdown-item>
+          <el-dropdown-item class="account-picker-action" @click="refresh">
+            <Icon icon="ion:reload" width="18" height="18" />
+            <span>{{ $t('refreshAccountList') }}</span>
+          </el-dropdown-item>
+        </el-dropdown-menu>
+      </template>
+    </el-dropdown>
     <el-dialog v-model="showAdd" :title="$t('addAccount')">
       <div class="container">
         <el-input v-model="addForm.email" ref="addRef" type="text" :placeholder="$t('emailAccount')" autocomplete="off">
@@ -100,7 +78,7 @@
             </div>
           </template>
         </el-input>
-        <el-button class="btn" type="primary" @click="submit" :loading="addLoading"
+        <el-button class="btn account-dialog-action" type="primary" @click="submit" :loading="addLoading"
         >{{ $t('add') }}
         </el-button>
       </div>
@@ -118,11 +96,12 @@
       <div class="container">
         <el-input v-model="accountName" type="text" :placeholder="$t('username')" autocomplete="off">
         </el-input>
-        <el-button class="btn" type="primary" @click="setName" :loading="setNameLoading"
+        <el-button class="btn account-dialog-action" type="primary" @click="setName" :loading="setNameLoading"
         >{{ $t('save') }}
         </el-button>
       </div>
     </el-dialog>
+
   </div>
 </template>
 <script setup>
@@ -155,6 +134,7 @@ const showAdd = ref(false)
 const addLoading = ref(false);
 const domainList = computed(() => settingStore.domainList)
 const accounts = reactive([])
+const selectedAccount = computed(() => accounts.find(item => item.accountId === accountStore.currentAccountId) || (accountStore.currentAccount?.accountId ? accountStore.currentAccount : null) || accounts[0] || {})
 const noLoading = ref(false)
 const loading = ref(false)
 const followLoading = ref(false);
@@ -333,7 +313,7 @@ function refresh() {
   queryParams.accountId = 0
   queryParams.lastSort = null
   getSkeletonRows();
-  scrollbarRef.value.setScrollTop(0)
+  scrollbarRef.value?.scrollTo?.(0, 0)
   accounts.splice(0, accounts.length)
   getAccountList()
 }
@@ -409,8 +389,12 @@ function getAccountList() {
     if (list.length < queryParams.size) {
       noLoading.value = true
     }
-    if (accounts.length === 0) {
-      accountStore.currentAccount = list[0]
+    if (accounts.length === 0 && list.length > 0) {
+      const selected = list.find(item => item.accountId === accountStore.currentAccountId)
+      accountStore.currentAccount = selected || list[0]
+      if (!accountStore.currentAccountId && list[0]) {
+        accountStore.currentAccountId = list[0].accountId
+      }
     }
 
     accounts.push(...list)
@@ -674,4 +658,43 @@ path[fill="#ffdda1"] {
   position: fixed;
 }
 
+</style>
+
+<style lang="scss">
+.account-picker { display: flex; justify-content: center; width: 100%; min-width: 0; }
+.account-selector { display: block; width: min(100%, 360px); min-width: 0; }
+.account-selector-button {
+  display: flex; align-items: center; gap: 8px; width: 100%; min-width: 0; height: 36px; padding: 0 12px;
+  border: 1px solid var(--el-color-primary-light-5); border-radius: 9px;
+  background: var(--el-color-primary-light-9); color: var(--el-color-primary); font: inherit; font-weight: 600; cursor: pointer;
+}
+.account-selector-button:hover, .account-selector-button:focus-visible {
+  border-color: var(--el-color-primary); box-shadow: 0 0 0 2px var(--el-color-primary-light-8); outline: none;
+}
+.account-selector-icon, .account-selector-caret { flex: 0 0 auto; }
+.selected-account-email { flex: 1 1 auto; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-align: left; }
+.account-picker-popper { z-index: 3000 !important; width: min(380px, calc(100vw - 24px)); }
+.account-picker-popper .el-dropdown-menu {
+  display: flex; flex-direction: column; width: 100%; max-height: min(72vh, 560px); overflow: hidden; padding: 6px;
+}
+.account-picker-popper .el-dropdown-menu__item { min-height: 42px; line-height: 1.25; white-space: normal; }
+.account-picker-popper .account-picker-heading { min-height: 34px; color: var(--el-text-color-secondary); font-size: 12px; cursor: default; }
+.account-picker-options { flex: 0 1 auto; min-height: 0; max-height: min(52vh, 400px); overflow-y: auto; overscroll-behavior: contain; }
+.account-picker-popper .account-picker-action { flex: 0 0 auto; }
+.account-picker-popper .account-option-current { color: var(--el-color-primary); background: var(--el-color-primary-light-9); font-weight: 600; }
+.account-option { display: flex; align-items: center; gap: 8px; width: 100%; min-width: 0; }
+.account-option-email { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.account-option-check { flex: 0 0 auto; color: var(--el-color-primary); }
+.account-option-actions { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; color: var(--el-text-color-secondary); }
+.account-option-actions > svg { cursor: pointer; }
+.account-picker-action { display: flex; align-items: center; gap: 9px; }
+.account-dialog-action { width: 100%; margin-top: 15px; }
+.account-actions-popper { z-index: 3100 !important; }
+@media (max-width: 600px) {
+  .account-selector-button { height: 32px; gap: 6px; padding: 0 8px; border-radius: 8px; font-size: 12px; }
+  .account-picker-popper { width: min(380px, calc(100vw - 16px)); }
+  .account-picker-popper .el-dropdown-menu { max-height: calc(100dvh - 24px); }
+  .account-picker-options { max-height: min(52vh, calc(100dvh - 180px)); }
+  .account-option-actions { gap: 6px; }
+}
 </style>

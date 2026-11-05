@@ -14,9 +14,9 @@
         <span class="form-desc" v-if="show === 'login'">{{ $t('loginTitle') }}</span>
         <span class="form-desc" v-else>{{ $t('regTitle') }}</span>
         <div v-show="show === 'login'">
-          <el-input :class="!hideLoginDomain ? 'email-input' : ''" v-model="form.email"
-                    type="text" :placeholder="$t('emailAccount')" autocomplete="off">
-            <template #append v-if="!hideLoginDomain">
+          <el-input :class="!hideLoginDomain && !loginWithBoundEmail && !form.email.includes('@') ? 'email-input' : ''" v-model="form.email"
+                    type="text" :placeholder="$t(loginWithBoundEmail ? 'boundEmailPlaceholder' : 'loginEmailOrNotification')" autocomplete="email">
+            <template #append v-if="!hideLoginDomain && !loginWithBoundEmail && !form.email.includes('@')">
               <div @click.stop="openSelect">
                 <el-select
                     v-if="show === 'login'"
@@ -104,6 +104,15 @@
           <div class="switch" @click="show = 'login'" v-else>{{ $t('hasAccount') }} <span>{{ $t('loginSwitch') }}</span>
           </div>
         </template>
+        <div class="login-method-switch" v-if="show === 'login'">
+          <button type="button" @click="toggleLoginMethod">
+            {{ $t(loginWithBoundEmail ? 'loginWithAccountEmail' : 'loginWithBoundEmail') }}
+          </button>
+        </div>
+        <div class="admin-contact" v-if="show === 'login' && settingStore.settings.showAdminContactEmail && settingStore.settings.adminContactEmail">
+          <span>{{$t('adminContactEmail')}}:</span>
+          <a :href="`mailto:${settingStore.settings.adminContactEmail}`">{{ settingStore.settings.adminContactEmail }}</a>
+        </div>
       </div>
     </div>
     <el-dialog class="bind-dialog" v-model="showBindForm"  title="注册邮箱" >
@@ -140,9 +149,6 @@
         </el-button>
       </div>
     </el-dialog>
-    <a v-show="settingStore.settings.projectLink" class="github" href="https://github.com/maillab/cloud-mail">
-      <Icon icon="mingcute:github-line" color="#1890ff" width="20" height="20" />
-    </a>
   </div>
 </template>
 
@@ -174,6 +180,7 @@ const bindLoading = ref(false)
 const oauthLoading = ref(false);
 const showBindForm = ref(false);
 const show = ref('login')
+const loginWithBoundEmail = ref(false)
 
 const bindForm = reactive({
   email: '',
@@ -266,6 +273,13 @@ const openSelect = () => {
 
 const getFullEmail = (email) => {
   return hideLoginDomain.value ? email : email + suffix.value
+}
+
+function toggleLoginMethod() {
+  if (loginWithBoundEmail.value || !form.email.includes('@')) {
+    form.email = ''
+  }
+  loginWithBoundEmail.value = !loginWithBoundEmail.value
 }
 
 const getEmailName = (email) => {
@@ -383,7 +397,7 @@ const submit = () => {
     return
   }
 
-  let email = getFullEmail(form.email);
+  let email = form.email.includes('@') ? form.email.trim() : getFullEmail(form.email);
 
   if (!isEmail(email)) {
     ElMessage({
@@ -669,6 +683,19 @@ function submitRegister() {
     }
   }
 
+  .admin-contact {
+    margin-top: 18px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--form-desc-color);
+    overflow-wrap: anywhere;
+
+    a {
+      color: var(--login-switch-color);
+      margin-left: 4px;
+    }
+  }
+
   :deep(.el-input__wrapper) {
     border-radius: 6px;
     background: var(--el-bg-color);
@@ -714,21 +741,19 @@ function submitRegister() {
   top: 6px;
 }
 
-.github {
-  position: fixed;
-  width: 35px;
-  height: 35px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 50%;
-  background: var(--el-bg-color);
-  bottom: 10px;
-  right: 10px;
-  z-index: 1000;
-  border: 1px solid var(--el-border-color-light);
-  box-shadow: var(--el-box-shadow-light);
-  cursor: pointer;
+.login-method-switch {
+  margin-top: 8px;
+  text-align: center;
+
+  button {
+    padding: 4px 8px;
+    border: 0;
+    background: transparent;
+    color: var(--login-switch-color);
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+  }
 }
 
 :deep(.el-input-group__append) {

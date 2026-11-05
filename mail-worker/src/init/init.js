@@ -30,8 +30,80 @@ const dbInit = {
 		await this.v2_9DB(c);
 		await this.v3_0DB(c);
 		await this.v3_1DB(c);
+		await this.v3_2DB(c);
 		await settingService.refresh(c);
 		return c.text('success');
+	},
+
+	async v3_2DB(c) {
+		try {
+			await c.env.db.prepare(`ALTER TABLE user ADD COLUMN notification_email TEXT NOT NULL DEFAULT '';`).run();
+		} catch (e) {
+			console.warn(`跳过字段：${e.message}`);
+		}
+
+		try {
+			await c.env.db.prepare(`CREATE UNIQUE INDEX IF NOT EXISTS idx_user_notification_email_nocase ON user (notification_email COLLATE NOCASE) WHERE notification_email != '';`).run();
+		} catch (e) {
+			console.warn(`跳过索引：${e.message}`);
+		}
+
+		for (const [column, sql] of [
+			['show_admin_contact_email', `ALTER TABLE setting ADD COLUMN show_admin_contact_email INTEGER NOT NULL DEFAULT 0;`],
+			['admin_contact_email', `ALTER TABLE setting ADD COLUMN admin_contact_email TEXT NOT NULL DEFAULT '';`]
+		]) {
+			try {
+				await c.env.db.prepare(sql).run();
+			} catch (e) {
+				console.warn(`跳过字段 ${column}：${e.message}`);
+			}
+		}
+
+		const conflictGuards = [
+			`CREATE TRIGGER IF NOT EXISTS user_notification_email_insert_guard BEFORE INSERT ON user WHEN NEW.notification_email != '' AND EXISTS (SELECT 1 FROM user WHERE lower(email) = lower(NEW.notification_email) OR lower(notification_email) = lower(NEW.notification_email)) BEGIN SELECT RAISE(ABORT, 'notification email already used'); END;`,
+			`CREATE TRIGGER IF NOT EXISTS user_notification_email_update_guard BEFORE UPDATE OF notification_email ON user WHEN NEW.notification_email != '' AND EXISTS (SELECT 1 FROM user WHERE user_id != NEW.user_id AND (lower(email) = lower(NEW.notification_email) OR lower(notification_email) = lower(NEW.notification_email))) BEGIN SELECT RAISE(ABORT, 'notification email already used'); END;`,
+			`CREATE TRIGGER IF NOT EXISTS user_primary_email_insert_guard BEFORE INSERT ON user WHEN EXISTS (SELECT 1 FROM user WHERE lower(notification_email) = lower(NEW.email) AND notification_email != '') BEGIN SELECT RAISE(ABORT, 'email already used as notification email'); END;`,
+			`CREATE TRIGGER IF NOT EXISTS user_primary_email_update_guard BEFORE UPDATE OF email ON user WHEN EXISTS (SELECT 1 FROM user WHERE user_id != NEW.user_id AND lower(notification_email) = lower(NEW.email) AND notification_email != '') BEGIN SELECT RAISE(ABORT, 'email already used as notification email'); END;`
+		];
+		for (const trigger of conflictGuards) {
+			try {
+				await c.env.db.prepare(trigger).run();
+			} catch (e) {
+				console.warn(`跳过邮箱唯一性保护：${e.message}`);
+			}
+		}
+
+		try {
+			await c.env.db.prepare(`
+				CREATE TABLE IF NOT EXISTS broadcast (
+					broadcast_id INTEGER PRIMARY KEY AUTOINCREMENT,
+					subject TEXT NOT NULL,
+					content TEXT NOT NULL,
+					recipient_count INTEGER NOT NULL DEFAULT 0,
+					sent_count INTEGER NOT NULL DEFAULT 0,
+					failed_count INTEGER NOT NULL DEFAULT 0,
+					status INTEGER NOT NULL DEFAULT 0,
+					created_by INTEGER NOT NULL,
+					create_time DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+					complete_time DATETIME
+				)
+			`).run();
+			await c.env.db.prepare(`
+				CREATE TABLE IF NOT EXISTS broadcast_recipient (
+					recipient_id INTEGER PRIMARY KEY AUTOINCREMENT,
+					broadcast_id INTEGER NOT NULL,
+					user_id INTEGER NOT NULL,
+					email TEXT NOT NULL,
+					status INTEGER NOT NULL DEFAULT 0,
+					error TEXT NOT NULL DEFAULT '',
+					create_time DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+					send_time DATETIME
+				)
+			`).run();
+			await c.env.db.prepare(`CREATE INDEX IF NOT EXISTS idx_broadcast_recipient_pending ON broadcast_recipient (broadcast_id, status, recipient_id);`).run();
+		} catch (e) {
+			console.warn(`跳过广播表初始化：${e.message}`);
+		}
 	},
 
 	async v3_1DB(c) {

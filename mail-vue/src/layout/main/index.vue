@@ -1,7 +1,5 @@
 <template>
-  <div :class="accountShow && hasPerm('account:query') ? 'main-box-show' : 'main-box-hide'">
-    <div :class="accountShow && hasPerm('account:query') ? 'block-show' : 'block-hide'" @click="uiStore.accountShow = false"></div>
-    <account  :class="accountShow && hasPerm('account:query') ? 'show' : 'hide'" />
+  <div class="main-box">
     <router-view class="main-view" v-slot="{ Component,route }">
       <keep-alive :include="['email','all-email','send','sys-setting','star','user','role','analysis','reg-key','draft']">
         <component :is="Component" :key="route.name"/>
@@ -10,23 +8,14 @@
   </div>
 </template>
 <script setup>
-import account from '@/layout/account/index.vue'
-import {useUiStore} from "@/store/ui.js";
+import account from "@/layout/account/index.vue";
 import {useSettingStore} from "@/store/setting.js";
-import {computed, onBeforeUnmount, onMounted, watch} from "vue";
-import { useRoute } from 'vue-router'
-import { hasPerm } from "@/perm/perm.js"
+import {useUiStore} from "@/store/ui.js";
+import {watch} from "vue";
 
-const settingStore = useSettingStore()
 const uiStore = useUiStore();
-const route = useRoute()
-let  innerWidth =  window.innerWidth
-
+const settingStore = useSettingStore();
 let elNotification = null
-
-const accountShow = computed(() => {
-  return uiStore.accountShow && settingStore.settings.manyEmail === 0
-})
 
 watch(() => uiStore.changeNotice, () => {
 
@@ -81,23 +70,6 @@ function showNotice(data) {
   })
 }
 
-onMounted(() => {
-  window.addEventListener('resize', handleResize)
-  handleResize()
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', handleResize)
-})
-
-const handleResize = () => {
-  if (['content','email','send'].includes(route.meta.name)) {
-    if (innerWidth !==  window.innerWidth) {
-      innerWidth = window.innerWidth;
-      uiStore.accountShow = window.innerWidth >= 767;
-    }
-  }
-}
 
 </script>
 <style lang="scss" scoped>
@@ -144,24 +116,19 @@ const handleResize = () => {
 }
 
 
-.main-box-show {
-  display: grid;
-  grid-template-columns: 260px  1fr;
+.main-box {
+  display: flex;
+  width: 100%;
   height: calc(100% - 60px);
-  @media (max-width: 767px) {
-    grid-template-columns: 1fr;
-  }
-}
-
-.main-box-hide {
-  display: grid;
-  grid-template-columns: 1fr;
-  height: calc(100% - 60px);
+  min-width: 0;
 }
 
 
 .main-view {
   background: var(--el-bg-color);
+  flex: 1 1 0;
+  width: 100%;
+  min-width: 0;
 }
 
 

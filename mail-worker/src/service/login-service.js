@@ -207,7 +207,9 @@ const loginService = {
 			throw new BizError(t('emailAndPwdEmpty'));
 		}
 
-		const userRow = await userService.selectByEmailIncludeDel(c, email);
+		const userRow = noVerifyPwd
+			? await userService.selectByEmailIncludeDel(c, email)
+			: await userService.selectByLoginEmail(c, email);
 
 		if (!userRow) {
 			throw new BizError(t('notExistUser'));

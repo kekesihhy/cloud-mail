@@ -1,29 +1,26 @@
 <template>
   <div class="email-container">
     <div class="header-actions">
-      <el-checkbox
-          v-model="checkAll"
-          :indeterminate="isIndeterminate"
-          :disabled="!emailList.length || loading"
-          @change="handleCheckAllChange"
-      >
-      </el-checkbox>
       <div class="header-left" :style="'padding-left:' + actionLeft">
-
+        <el-checkbox
+            v-model="checkAll"
+            :indeterminate="isIndeterminate"
+            :disabled="!emailList.length || loading"
+            @change="handleCheckAllChange"
+        ></el-checkbox>
         <slot name="first"></slot>
         <Icon class="icon reload" icon="ion:reload" width="18" height="18" @click="refresh"/>
         <Icon v-perm="'email:delete'" class="icon delete" icon="uiw:delete" width="16" height="16"
-              v-if="getSelectedMailsIds().length > 0"
-              @click="handleDelete"/>
+              v-if="getSelectedMailsIds().length > 0" @click="handleDelete"/>
         <Icon v-perm="'email:delete'" class="icon delete" icon="fluent:mail-read-20-regular" width="21" height="21"
-              v-if="getSelectedMailsIds().length > 0 && showUnread"
-              @click="handleRead"/>
+              v-if="getSelectedMailsIds().length > 0 && showUnread" @click="handleRead"/>
       </div>
-
+      <div v-if="showAccountIcon && settingStore.settings.manyEmail === 0"
+           v-perm="'account:query'" class="toolbar-account-picker">
+        <account />
+      </div>
       <div class="header-right">
         <span class="email-count" v-if="total">{{ $t('emailCount', {total: total}) }}</span>
-        <Icon v-if="showAccountIcon" class="more-icon icon" width="16" height="16" icon="akar-icons:dot-grid-fill"
-              @click="changeAccountShow"/>
       </div>
     </div>
 
@@ -53,7 +50,7 @@
                 <Icon v-else icon="solar:star-line-duotone" width="18" height="18"/>
               </div>
               <div v-if="!showStar"></div>
-              <div class="title" :class="accountShow ? 'title-column' : 'title-column'">
+              <div class="title title-column">
 
                 <div class="email-sender" :style=" (showStatus ? 'gap: 10px;' : '') + ((item.unread === EmailUnreadEnum.UNREAD && showUnread)  ? 'font-weight: bold' : '')">
                   <div class="email-status" v-if="showStatus">
@@ -114,7 +111,7 @@
             <skeletonBlock v-else-if="item.expand === 'loading'"
                            :rows="1"
                            :showStar="showStar"
-                           :accountShow="accountShow"
+                           :accountShow="false"
                            :showStatus="showStatus"
                            :showUserInfo="showUserInfo"
                            :type="type"/>
@@ -126,14 +123,14 @@
       <skeletonBlock v-if="firstLoad && showFirstLoading"
                        :rows="20"
                        :showStar="showStar"
-                       :accountShow="accountShow"
+                       :accountShow="false"
                        :showStatus="showStatus"
                        :showUserInfo="showUserInfo"
                        :type="type"/>
       <skeletonBlock v-if="loading"
                        :rows="skeletonRows"
                        :showStar="showStar"
-                       :accountShow="accountShow"
+                       :accountShow="false"
                        :showStatus="showStatus"
                        :showUserInfo="showUserInfo"
                        :type="type"/>
@@ -236,9 +233,9 @@
 <script setup>
 import {Icon} from "@iconify/vue";
 import skeletonBlock from "@/components/email-scroll/skeleton/index.vue"
+import account from "@/layout/account/index.vue"
 import {computed, onActivated, reactive, ref, watch, nextTick, onMounted, onUnmounted } from "vue";
 import {useEmailStore} from "@/store/email.js";
-import {useUiStore} from "@/store/ui.js";
 import {useSettingStore} from "@/store/setting.js";
 import {sleep} from "@/utils/time-utils.js"
 import {fromNow} from "@/utils/day.js";
@@ -300,7 +297,6 @@ const props = defineProps({
 const emit = defineEmits(['jump', 'refresh-before', 'delete-draft', 'right-search'])
 const {t} = useI18n()
 const settingStore = useSettingStore()
-const uiStore = useUiStore();
 const emailStore = useEmailStore();
 const loading = ref(false);
 const followLoading = ref(false);
@@ -547,10 +543,6 @@ function getSkeletonRows() {
   skeletonRows = emailList.length
 }
 
-const accountShow = computed(() => {
-  return uiStore.accountShow && settingStore.settings.manyEmail === 0
-})
-
 function htmlToText(email) {
   if (email.content) {
 
@@ -607,10 +599,6 @@ function starChange(email) {
       email.isStar = 1;
     })
   }
-}
-
-function changeAccountShow() {
-  uiStore.accountShow = !uiStore.accountShow;
 }
 
 const handleRead = () => {
@@ -1277,44 +1265,49 @@ function loadData() {
 
 .header-actions {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 15px;
-  padding: 3px 15px;
+  gap: clamp(6px, 1.2vw, 14px);
+  padding: 3px clamp(8px, 1.3vw, 15px);
   box-shadow: var(--header-actions-border);
+  min-width: 0;
 
   .header-left {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     align-items: center;
     position: relative;
-    column-gap: 20px;
-    row-gap: 8px;
+    column-gap: clamp(8px, 1.4vw, 20px);
     padding-left: 2px;
-    color: var(--el-text-color-primary);;
+    min-width: 0;
+    color: var(--el-text-color-primary);
+    :deep(.el-checkbox) { margin-right: 0; }
+  }
+
+  .toolbar-account-picker {
+    justify-self: center;
+    width: min(100%, 360px);
+    min-width: 0;
   }
 
   .header-right {
-    display: grid;
-    grid-template-columns: auto auto;
-    align-items: start;
-    height: 100%;
-    color: var(--el-text-color-primary);;
-
-    .email-count {
-      white-space: nowrap;
-      margin-top: 6px;
-    }
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: 0;
+    color: var(--el-text-color-primary);
+    .email-count { white-space: nowrap; margin-top: 0; }
   }
 
-  .icon {
-    font-size: 18px;
-    cursor: pointer;
-  }
-
-  .more-icon {
-    margin-top: 8px;
-    margin-left: 15px;
+  .icon { font-size: 18px; cursor: pointer; }
+}
+@media (max-width: 600px) {
+  .header-actions {
+    gap: 4px;
+    padding: 3px 8px;
+    .header-left { column-gap: clamp(5px, 1.6vw, 9px); padding-left: 0; }
+    .toolbar-account-picker { width: 100%; }
+    .header-right .email-count { font-size: 12px; }
   }
 }
 

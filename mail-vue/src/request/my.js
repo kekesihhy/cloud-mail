@@ -12,3 +12,7 @@ export function userDelete() {
     return http.delete('/my/delete')
 }
 
+export function setNotificationEmail(email) {
+    return http.put('/my/notificationEmail', {email})
+}
+
