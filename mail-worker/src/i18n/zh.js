@@ -1,5 +1,9 @@
 const zh = {
 	IncorrectPwd: '密码输入错误',
+	notificationEmailSame: '通知邮箱不能与当前登录邮箱相同',
+	notificationEmailInUse: '该邮箱已关联其他账户',
+	broadcastContentInvalid: '请填写主题（最多150字）和正文（最多20000字）',
+	broadcastNoRecipients: '目前没有设置通知邮箱的正常用户',
 	addAccountDisabled: '添加邮箱功能已关闭',
 	regDisabled: '注册功能已关闭',
 	emptyEmail: '邮箱不能为空',

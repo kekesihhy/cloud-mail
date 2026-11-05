@@ -101,6 +101,24 @@
                                    :step="0.01" :max="1" :min="0"/>
                 </div>
               </div>
+              <div class="setting-item">
+                <div><span>{{ $t('showAdminContactEmail') }}</span></div>
+                <div>
+                  <el-switch
+                      :active-value="1"
+                      :inactive-value="0"
+                      :model-value="setting.showAdminContactEmail"
+                      @change="changeField('showAdminContactEmail', $event)"
+                  />
+                </div>
+              </div>
+              <div class="setting-item admin-contact-setting">
+                <div><span>{{ $t('adminContactEmail') }}</span></div>
+                <div class="admin-contact-input">
+                  <el-input v-model="adminContactEmail" type="email" :placeholder="$t('adminContactEmailPlaceholder')" />
+                  <el-button type="primary" @click="saveAdminContactEmail">{{ $t('save') }}</el-button>
+                </div>
+              </div>
               <div class="setting-item personalized">
                 <div><span>{{ $t('loginBackground') }}</span></div>
                 <div>
@@ -863,6 +881,7 @@ const clearS3Loading = ref(false)
 const r2DomainInput = ref('')
 const loginOpacity = ref(0)
 const loginDarkenFactor = ref(0)
+const adminContactEmail = ref('')
 const minEmailPrefix = ref(0)
 const emailPrefixFilter = ref([])
 const backgroundUrl = ref('')
@@ -955,6 +974,7 @@ function getSettings() {
     resendTokenForm.domain = setting.value.domainList[0]
     loginOpacity.value = setting.value.loginOpacity
     loginDarkenFactor.value = normalizeFactor(setting.value.loginDarkenFactor)
+    adminContactEmail.value = setting.value.adminContactEmail || ''
     minEmailPrefix.value = setting.value.minEmailPrefix
     firstLoading.value = false
     backgroundUrl.value = setting.value.background?.startsWith('http') ? setting.value.background : ''
@@ -1251,6 +1271,15 @@ function doDarkenChange() {
   const form = {}
   form.loginDarkenFactor = normalizeFactor(loginDarkenFactor.value)
   editSetting(form, true)
+}
+
+function saveAdminContactEmail() {
+  const email = adminContactEmail.value.trim()
+  if (email && !isEmail(email)) {
+    ElMessage({message: t('notEmailMsg'), type: 'error', plain: true})
+    return
+  }
+  editSetting({adminContactEmail: email})
 }
 
 function resetEmailPrefix() {
@@ -1990,6 +2019,29 @@ function editSetting(settingForm, refreshStatus = true) {
 
   .el-button {
     margin-top: 0;
+  }
+}
+
+.admin-contact-setting .admin-contact-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.admin-contact-setting .el-input {
+  min-width: 150px;
+  max-width: 320px;
+}
+
+@media (max-width: 767px) {
+  .admin-contact-setting .admin-contact-input {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .admin-contact-setting .el-input {
+    max-width: none;
   }
 }
 

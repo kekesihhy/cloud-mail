@@ -14,9 +14,9 @@
         <span class="form-desc" v-if="show === 'login'">{{ $t('loginTitle') }}</span>
         <span class="form-desc" v-else>{{ $t('regTitle') }}</span>
         <div v-show="show === 'login'">
-          <el-input :class="!hideLoginDomain ? 'email-input' : ''" v-model="form.email"
-                    type="text" :placeholder="$t('emailAccount')" autocomplete="off">
-            <template #append v-if="!hideLoginDomain">
+          <el-input :class="!hideLoginDomain && !form.email.includes('@') ? 'email-input' : ''" v-model="form.email"
+                    type="text" :placeholder="$t('loginEmailOrNotification')" autocomplete="email">
+            <template #append v-if="!hideLoginDomain && !form.email.includes('@')">
               <div @click.stop="openSelect">
                 <el-select
                     v-if="show === 'login'"
@@ -104,6 +104,10 @@
           <div class="switch" @click="show = 'login'" v-else>{{ $t('hasAccount') }} <span>{{ $t('loginSwitch') }}</span>
           </div>
         </template>
+        <div class="admin-contact" v-if="show === 'login' && settingStore.settings.showAdminContactEmail && settingStore.settings.adminContactEmail">
+          <span>{{$t('adminContactEmail')}}:</span>
+          <a :href="`mailto:${settingStore.settings.adminContactEmail}`">{{ settingStore.settings.adminContactEmail }}</a>
+        </div>
       </div>
     </div>
     <el-dialog class="bind-dialog" v-model="showBindForm"  title="注册邮箱" >
@@ -383,7 +387,7 @@ const submit = () => {
     return
   }
 
-  let email = getFullEmail(form.email);
+  let email = form.email.includes('@') ? form.email.trim() : getFullEmail(form.email);
 
   if (!isEmail(email)) {
     ElMessage({
@@ -666,6 +670,19 @@ function submitRegister() {
     span {
       color: var(--login-switch-color);
       cursor: pointer;
+    }
+  }
+
+  .admin-contact {
+    margin-top: 18px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--form-desc-color);
+    overflow-wrap: anywhere;
+
+    a {
+      color: var(--login-switch-color);
+      margin-left: 4px;
     }
   }
 

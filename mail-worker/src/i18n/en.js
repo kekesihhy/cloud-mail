@@ -1,5 +1,9 @@
 const en = {
 	IncorrectPwd: 'Incorrect password',
+	notificationEmailSame: 'The notification email must differ from your sign-in email',
+	notificationEmailInUse: 'This email is already linked to another account',
+	broadcastContentInvalid: 'Enter a subject (up to 150 characters) and body (up to 20000 characters)',
+	broadcastNoRecipients: 'No active users have set a notification email',
 	addAccountDisabled: 'Add Email Address feature is disabled',
 	regDisabled: 'Sign up is disabled',
 	emptyEmail: 'Email cannot be empty',

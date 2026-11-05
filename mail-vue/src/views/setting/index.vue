@@ -23,6 +23,29 @@
         <div>{{$t('emailAccount')}}</div>
         <div>{{ userStore.user.email }}</div>
       </div>
+      <div class="item notification-item">
+        <div>{{$t('notificationEmail')}}</div>
+        <div class="notification-content">
+          <div class="notification-form-row">
+            <el-input
+                v-model="notificationForm.email"
+                type="email"
+                :placeholder="$t('notificationEmailPlaceholder')"
+                autocomplete="email"
+            />
+            <el-button type="primary" :loading="notificationSaveLoading" @click="saveNotificationEmail">
+              {{$t('saveNotificationEmail')}}
+            </el-button>
+            <el-button v-if="userStore.user.notificationEmail" :loading="notificationSaveLoading" @click="clearNotificationEmail">
+              {{$t('clearNotificationEmail')}}
+            </el-button>
+          </div>
+          <div class="notification-current" v-if="userStore.user.notificationEmail">
+            {{$t('currentNotificationEmail')}}: {{ userStore.user.notificationEmail }}
+          </div>
+          <div class="notification-hint">{{$t('notificationEmailDesc')}}</div>
+        </div>
+      </div>
       <div class="item">
         <div>{{$t('password')}}</div>
         <div>
@@ -62,7 +85,7 @@
 </template>
 <script setup>
 import {reactive, ref, defineOptions} from 'vue'
-import {resetPassword, userDelete} from "@/request/my.js";
+import {resetPassword, userDelete, setNotificationEmail} from "@/request/my.js";
 import {useUserStore} from "@/store/user.js";
 import router from "@/router/index.js";
 import {accountSetName} from "@/request/account.js";
@@ -138,6 +161,24 @@ const form = reactive({
   password: '',
   newPwd: '',
 })
+const notificationForm = reactive({email: userStore.user.notificationEmail || ''})
+const notificationSaveLoading = ref(false)
+
+function saveNotificationEmail() {
+  notificationSaveLoading.value = true
+  setNotificationEmail(notificationForm.email).then((data) => {
+    userStore.user.notificationEmail = data.notificationEmail
+    notificationForm.email = data.notificationEmail
+    ElMessage({message: t('saveSuccessMsg'), type: 'success', plain: true})
+  }).catch(() => {}).finally(() => {
+    notificationSaveLoading.value = false
+  })
+}
+
+function clearNotificationEmail() {
+  notificationForm.email = ''
+  saveNotificationEmail()
+}
 
 const deleteConfirm = () => {
   ElMessageBox.confirm(t('delAccountConfirm'), {
@@ -271,6 +312,56 @@ function submitPwd() {
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
+      }
+    }
+
+    .notification-item {
+      grid-template-columns: 100px minmax(0, 1fr);
+      gap: 20px;
+      align-items: start;
+
+      > div:first-child {
+        white-space: normal;
+      }
+
+      .notification-content {
+        display: grid;
+        gap: 10px;
+        min-width: 0;
+        overflow: visible;
+        white-space: normal;
+      }
+
+      .notification-current,
+      .notification-hint {
+        color: var(--regular-text-color);
+        font-size: 13px;
+        white-space: normal;
+      }
+
+      .notification-form-row {
+        display: flex;
+        gap: 10px;
+        min-width: 0;
+        flex-wrap: wrap;
+
+        .el-input {
+          max-width: 320px;
+        }
+      }
+
+      @media (max-width: 767px) {
+        grid-template-columns: 1fr;
+        gap: 10px;
+
+        .notification-form-row {
+          flex-direction: column;
+          align-items: stretch;
+
+          .el-input {
+            max-width: none;
+          }
+        }
       }
     }
   }

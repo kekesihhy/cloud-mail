@@ -2,7 +2,7 @@ import BizError from '../error/biz-error';
 import accountService from './account-service';
 import orm from '../entity/orm';
 import user from '../entity/user';
-import { and, asc, count, desc, eq, inArray, sql } from 'drizzle-orm';
+import { and, asc, count, desc, eq, inArray, or, sql } from 'drizzle-orm';
 import { emailConst, isDel, roleConst, userConst } from '../const/entity-const';
 import kvConst from '../const/kv-const';
 import KvConst from '../const/kv-const';
@@ -39,6 +39,7 @@ const userService = {
 		user.userId = userRow.userId;
 		user.sendCount = userRow.sendCount;
 		user.email = userRow.email;
+		user.notificationEmail = userRow.notificationEmail || '';
 		user.account = account;
 		user.name = account.name;
 		user.permKeys = permKeys;
@@ -80,6 +81,13 @@ const userService = {
 
 	selectByEmailIncludeDel(c, email) {
 		return orm(c).select().from(user).where(sql`${user.email} COLLATE NOCASE = ${email}`).get();
+	},
+
+	selectByLoginEmail(c, email) {
+		return orm(c).select().from(user).where(or(
+			sql`${user.email} COLLATE NOCASE = ${email}`,
+			sql`${user.notificationEmail} COLLATE NOCASE = ${email}`
+		)).get();
 	},
 
 	selectByIdIncludeDel(c, userId) {
