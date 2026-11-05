@@ -28,6 +28,6 @@ export const useUiStore = defineStore('ui', {
         }
     },
     persist: {
-        pick: ['accountShow','dark','palette'],
+        pick: ['dark','palette'],
     },
 })
