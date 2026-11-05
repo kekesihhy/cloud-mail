@@ -5,26 +5,21 @@
         <component :is="Component" :key="route.name"/>
       </keep-alive>
     </router-view>
+    <el-drawer v-model="uiStore.accountShow" :title="$t('emailAccount')" direction="rtl" size="420px"
+               append-to-body class="account-management-drawer">
+      <account />
+    </el-drawer>
   </div>
 </template>
 <script setup>
-import account from '@/layout/account/index.vue'
-import {useUiStore} from "@/store/ui.js";
+import account from "@/layout/account/index.vue";
 import {useSettingStore} from "@/store/setting.js";
-import {computed, onBeforeUnmount, onMounted, watch} from "vue";
-import { useRoute } from 'vue-router'
-import { hasPerm } from "@/perm/perm.js"
+import {useUiStore} from "@/store/ui.js";
+import {watch} from "vue";
 
-const settingStore = useSettingStore()
 const uiStore = useUiStore();
-const route = useRoute()
-let  innerWidth =  window.innerWidth
-
+const settingStore = useSettingStore();
 let elNotification = null
-
-const accountShow = computed(() => {
-  return uiStore.accountShow && settingStore.settings.manyEmail === 0
-})
 
 watch(() => uiStore.changeNotice, () => {
 
@@ -79,23 +74,6 @@ function showNotice(data) {
   })
 }
 
-onMounted(() => {
-  window.addEventListener('resize', handleResize)
-  handleResize()
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', handleResize)
-})
-
-const handleResize = () => {
-  if (['content','email','send'].includes(route.meta.name)) {
-    if (innerWidth !==  window.innerWidth) {
-      innerWidth = window.innerWidth;
-      uiStore.accountShow = window.innerWidth >= 767;
-    }
-  }
-}
 
 </script>
 <style lang="scss" scoped>
