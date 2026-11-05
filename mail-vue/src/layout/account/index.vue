@@ -53,7 +53,7 @@
         </el-dropdown-menu>
       </template>
     </el-dropdown>
-    <el-dialog v-model="showAdd" :title="$t('addAccount')" append-to-body>
+    <el-dialog v-model="showAdd" :title="$t('addAccount')" append-to-body class="add-email-dialog">
       <div class="container">
         <el-input v-model="addForm.email" ref="addRef" type="text" :placeholder="$t('emailAccount')" autocomplete="off">
           <template #append>
@@ -661,6 +661,15 @@ path[fill="#ffdda1"] {
 </style>
 
 <style lang="scss">
+.add-email-dialog { width: 400px !important; }
+@media (max-width: 440px) {
+  .add-email-dialog {
+    width: calc(100% - 40px) !important;
+    margin-right: 20px !important;
+    margin-left: 20px !important;
+  }
+}
+
 .account-picker { display: flex; justify-content: center; width: 100%; min-width: 0; }
 .account-selector { display: block; width: min(100%, 360px); min-width: 0; }
 .account-selector-button {
