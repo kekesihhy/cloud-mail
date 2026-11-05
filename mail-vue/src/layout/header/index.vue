@@ -112,6 +112,7 @@ const settingStore = useSettingStore();
 const userStore = useUserStore();
 const uiStore = useUiStore();
 document.documentElement.dataset.palette = uiStore.palette || 'ocean';
+if (!uiStore.themeChosen) uiStore.theme = 'glass';
 document.documentElement.dataset.theme = uiStore.theme || 'glass';
 const logoutLoading = ref(false)
 const userInfoShow = ref(false)
@@ -216,6 +217,7 @@ function setPalette(palette) {
 
 function setTheme(theme) {
   uiStore.theme = theme
+  uiStore.themeChosen = true
   document.documentElement.dataset.theme = theme
   const metaTag = document.getElementById('theme-color-meta')
   if (metaTag) {
