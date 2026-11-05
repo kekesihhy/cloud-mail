@@ -17,7 +17,7 @@
       </div>
       <div v-if="showAccountIcon && settingStore.settings.manyEmail === 0"
            v-perm="'account:query'" class="toolbar-account-picker">
-        <accountPicker />
+        <account />
       </div>
       <div class="header-right">
         <span class="email-count" v-if="total">{{ $t('emailCount', {total: total}) }}</span>
@@ -233,7 +233,7 @@
 <script setup>
 import {Icon} from "@iconify/vue";
 import skeletonBlock from "@/components/email-scroll/skeleton/index.vue"
-import accountPicker from "@/components/account-picker/index.vue"
+import account from "@/layout/account/index.vue"
 import {computed, onActivated, reactive, ref, watch, nextTick, onMounted, onUnmounted } from "vue";
 import {useEmailStore} from "@/store/email.js";
 import {useSettingStore} from "@/store/setting.js";
