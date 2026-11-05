@@ -409,8 +409,12 @@ function getAccountList() {
     if (list.length < queryParams.size) {
       noLoading.value = true
     }
-    if (accounts.length === 0) {
-      accountStore.currentAccount = list[0]
+    if (accounts.length === 0 && list.length > 0) {
+      const selected = list.find(item => item.accountId === accountStore.currentAccountId)
+      accountStore.currentAccount = selected || list[0]
+      if (!accountStore.currentAccountId && list[0]) {
+        accountStore.currentAccountId = list[0].accountId
+      }
     }
 
     accounts.push(...list)
