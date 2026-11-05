@@ -14,6 +14,8 @@ const en = {
     noMessagesFound: 'No messages found',
     addAccount: 'Add Email Address',
     emailAccount: 'Email',
+    emailSettings: 'Email settings',
+    refreshAccountList: 'Refresh email list',
     account: 'Address',
     userAccount: 'User Email Address',
     deleteUser: 'Delete Account',
