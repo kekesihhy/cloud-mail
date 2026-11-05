@@ -14,6 +14,8 @@ const zh = {
     noMessagesFound: '没有任何邮件',
     addAccount: '添加邮箱',
     emailAccount: '邮箱',
+    emailSettings: '邮箱设置',
+    refreshAccountList: '刷新邮箱列表',
     account: '邮箱',
     userAccount: '用户邮箱',
     deleteUser: '删除账户',
