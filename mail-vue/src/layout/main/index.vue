@@ -5,10 +5,6 @@
         <component :is="Component" :key="route.name"/>
       </keep-alive>
     </router-view>
-    <el-drawer v-model="uiStore.accountShow" :title="$t('emailAccount')" direction="rtl" size="420px"
-               append-to-body class="account-management-drawer">
-      <account />
-    </el-drawer>
   </div>
 </template>
 <script setup>
@@ -130,6 +126,9 @@ function showNotice(data) {
 
 .main-view {
   background: var(--el-bg-color);
+  flex: 1 1 0;
+  width: 100%;
+  min-width: 0;
 }
 
 
