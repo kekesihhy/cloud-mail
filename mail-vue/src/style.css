@@ -451,6 +451,11 @@ html[data-theme="glass"] .header {
     -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
 }
 
+html[data-theme="glass"] .el-header {
+    position: relative;
+    z-index: 2;
+}
+
 html[data-theme="glass"] .aside-show,
 html[data-theme="glass"] .el-aside-hide {
     background: linear-gradient(165deg, rgba(21, 28, 61, .84), rgba(33, 36, 79, .72)) !important;
