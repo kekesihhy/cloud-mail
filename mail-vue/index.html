@@ -18,10 +18,10 @@
       const root = document.documentElement
       root.setAttribute('class', uiStore.dark ? 'dark' : '');
       root.dataset.palette = uiStore.palette || 'ocean';
-      root.dataset.theme = uiStore.theme || 'classic';
+      root.dataset.theme = uiStore.theme || 'glass';
       const metaTag = document.getElementById('theme-color-meta');
       const isMobile =  !window.matchMedia("(pointer: fine) and (hover: hover)").matches;
-      const themeColor = uiStore.theme === 'glass'
+      const themeColor = (uiStore.theme || 'glass') === 'glass'
         ? (uiStore.dark ? '#11162b' : '#dbe5ff')
         : (uiStore.dark ? (isMobile ? '#141414' : '#000000') : (isMobile ? '#FFFFFF' : '#F1F1F1'));
       metaTag.setAttribute('content', themeColor);
