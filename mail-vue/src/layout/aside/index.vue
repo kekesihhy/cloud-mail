@@ -5,10 +5,6 @@
         <Icon icon="mdi:email-outline" width="24" height="24" />
         <div>{{settingStore.settings.title}}</div>
       </div>
-      <div v-if="settingStore.settings.manyEmail === 0" v-perm="'account:query'">
-        <div class="account-section-title">{{$t('emailAccount')}}</div>
-        <account class="integrated-account-list" />
-      </div>
       <el-menu :collapse="false" text-color="#fff" active-text-color="#fff" style="margin-top: 10px">
         <el-menu-item @click="router.push({name: 'email'})" index="email"
                       :class="route.meta.name === 'email' ? 'choose-item' : ''">
@@ -78,7 +74,6 @@ import router from "@/router/index.js";
 import { useRoute } from "vue-router";
 import {Icon} from "@iconify/vue";
 import {useSettingStore} from "@/store/setting.js";
-import account from "@/layout/account/index.vue";
 
 const settingStore = useSettingStore();
 const route = useRoute();
@@ -125,53 +120,6 @@ const route = useRoute();
 
 }
 
-
-.account-section-title {
-  margin: 16px 20px 6px;
-  color: rgba(255, 255, 255, 0.68);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-}
-
-:deep(.integrated-account-list.account-box) {
-  height: auto;
-  overflow: visible;
-  border: 0 !important;
-  background: transparent;
-}
-:deep(.integrated-account-list .head-opt) {
-  box-shadow: none;
-  color: #fff;
-}
-:deep(.integrated-account-list .scrollbar) {
-  height: auto;
-  max-height: 34vh;
-}
-:deep(.integrated-account-list .item) {
-  --el-card-bg-color: rgba(255, 255, 255, .055);
-  margin: 4px 10px;
-  padding: 8px;
-  border: 1px solid rgba(255, 255, 255, .09);
-  border-radius: 10px;
-  box-shadow: none;
-}
-:deep(.integrated-account-list .item-choose) {
-  --el-card-bg-color: rgba(45, 139, 255, .22);
-  border-color: rgba(91, 171, 255, .32);
-}
-:deep(.integrated-account-list .account) {
-  color: rgba(255, 255, 255, .92);
-  margin-bottom: 8px;
-  font-size: 12px;
-}
-:deep(.integrated-account-list .head-opt) {
-  height: 32px;
-}
-:deep(.integrated-account-list .settings),
-:deep(.integrated-account-list .send-email) {
-  opacity: .88;
-}
 
 .manage-title {
   margin-top: 10px;
