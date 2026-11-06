@@ -92,7 +92,7 @@
         <span style="font-size: 12px;color: #F56C6C" v-if="botJsError">{{ $t('verifyModuleFailed') }}</span>
       </div>
     </el-dialog>
-    <el-dialog v-model="setNameShow" :title="$t('changeUserName')">
+    <el-dialog v-model="setNameShow" :title="$t('changeUserName')" append-to-body class="rename-account-dialog">
       <div class="container">
         <el-input v-model="accountName" type="text" :placeholder="$t('username')" autocomplete="off">
         </el-input>
@@ -664,6 +664,15 @@ path[fill="#ffdda1"] {
 .add-email-dialog { width: 400px !important; }
 @media (max-width: 440px) {
   .add-email-dialog {
+    width: calc(100% - 40px) !important;
+    margin-right: 20px !important;
+    margin-left: 20px !important;
+  }
+}
+
+.rename-account-dialog { width: 400px !important; }
+@media (max-width: 440px) {
+  .rename-account-dialog {
     width: calc(100% - 40px) !important;
     margin-right: 20px !important;
     margin-left: 20px !important;
